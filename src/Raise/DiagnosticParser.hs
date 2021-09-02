@@ -64,12 +64,12 @@ parseSummary = do
 parseLine :: Parser [Diagnostic]
 parseLine = try parseDiagnostic <|> ((parseCheckStart <|> parseCheckEnd) >> pure [])
 
-parseOutput :: Parser [Diagnostic]
-parseOutput = do
+parseSyntaxCorrect :: Parser [Diagnostic]
+parseSyntaxCorrect = do
     parseHeader
     diags <- concat <$> many parseLine
     (errs, warns) <- parseSummary
     return diags
 
 parseRSLTC :: T.Text -> Either (ParseErrorBundle String Void) [Diagnostic]
-parseRSLTC = runParser parseOutput "" . T.unpack
+parseRSLTC = runParser (parseSyntaxCorrect <|> parseDiagnostic) "" . T.unpack

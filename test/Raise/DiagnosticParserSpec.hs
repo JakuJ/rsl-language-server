@@ -38,6 +38,13 @@ spec = do
                             , "rsltc completed: 0 error(s) 0 warning(s)" ]
           result = parseRSLTC example
       result `shouldBe` Right []
+    it "parse syntax error" $ do
+      let example = "./SET_DATABASE.rsl:9:29: syntax error\n"
+          result = parseRSLTC example
+          Right [Diagnostic {..}] = result
+      result `shouldSatisfy` isRight
+      _range `shouldBe` Range (Position 8 29) (Position 8 29)
+      _message `shouldBe` "syntax error"
     it "parse output with a one-line error" $ do
       let example = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
                             , "Checking SET_DATABASE ... "
