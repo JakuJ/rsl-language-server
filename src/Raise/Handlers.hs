@@ -12,4 +12,5 @@ handlers :: Handlers (LspM ())
 handlers = mconcat
   [ notificationHandler SInitialized $ const registerLenses
   , notificationHandler STextDocumentDidSave onSaveHandler
+  , notificationHandler STextDocumentDidOpen onOpenHandler
   ]

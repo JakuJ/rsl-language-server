@@ -5,7 +5,6 @@ import qualified Data.Text                  as T
 import           Data.Void                  (Void)
 import           Language.LSP.Types
 import           Language.LSP.Types.Lens    (HasCharacter (character))
-import           System.FilePath            (takeFileName)
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (skipLineComment)
@@ -13,12 +12,12 @@ import           Text.Megaparsec.Char.Lexer (skipLineComment)
 
 type Parser = Parsec Void String
 
-mkDiagnostic :: String -> Int -> Int -> String -> Diagnostic
-mkDiagnostic source line column msg = Diagnostic
+mkDiagnostic :: Int -> Int -> String -> Diagnostic
+mkDiagnostic line column msg = Diagnostic
                                 (Range (Position line column) (Position line column))
                                 (Just DsError)  -- severity
                                 Nothing  -- code
-                                (Just (T.pack source)) -- source
+                                (Just "rsl-language-server") -- source
                                 (T.pack msg)
                                 Nothing -- tags
                                 (Just (List []))
@@ -37,7 +36,7 @@ parseCheckStart = skipLineComment "Checking" >> void newline
 parseCheckEnd :: Parser ()
 parseCheckEnd = skipLineComment "Finished" >> void newline
 
-parseDiagnostic :: Parser Diagnostic
+parseDiagnostic :: Parser [Diagnostic]
 parseDiagnostic = do
     path <- some $ anySingleBut ':'
     char ':'
@@ -50,7 +49,7 @@ parseDiagnostic = do
     newline
     let lineNo = read line :: Int
         columnNo = read column :: Int
-    return $ mkDiagnostic (takeFileName path) (lineNo - 1) columnNo message
+    return [mkDiagnostic (lineNo - 1) columnNo message]
 
 parseSummary :: Parser (Int, Int)
 parseSummary = do
@@ -62,12 +61,13 @@ parseSummary = do
     optional newline
     return (errs, warns)
 
+parseLine :: Parser [Diagnostic]
+parseLine = try parseDiagnostic <|> ((parseCheckStart <|> parseCheckEnd) >> pure [])
+
 parseOutput :: Parser [Diagnostic]
 parseOutput = do
     parseHeader
-    parseCheckStart
-    diags <- many $ try parseDiagnostic
-    parseCheckEnd
+    diags <- concat <$> many parseLine
     (errs, warns) <- parseSummary
     return diags
 

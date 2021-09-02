@@ -57,3 +57,4 @@ tests:
     - rsl-language-server
     - hspec
     - hspec-discover
+    - lsp-test

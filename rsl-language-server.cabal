@@ -71,6 +71,7 @@ test-suite rsl-language-server-test
   main-is: Spec.hs
   other-modules:
       Raise.DiagnosticParserSpec
+      Raise.DiagnosticsSpec
       Paths_rsl_language_server
   hs-source-dirs:
       test
@@ -84,6 +85,7 @@ test-suite rsl-language-server-test
     , hspec-discover
     , lens
     , lsp
+    , lsp-test
     , lsp-types
     , megaparsec
     , process
