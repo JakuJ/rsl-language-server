@@ -1,4 +1,8 @@
-module Raise.DiagnosticParser where
+{-# LANGUAGE TypeApplications #-}
+
+module Raise.DiagnosticParser (
+    parseRSLTC
+) where
 
 import           Control.Monad              (void)
 import qualified Data.Text                  as T
@@ -37,18 +41,22 @@ parseCheckEnd = skipLineComment "Finished" >> void newline
 
 parseDiagnostic :: Parser [Diagnostic]
 parseDiagnostic = do
-    some $ anySingleBut ':'
-    char ':'
-    line <- some $ anySingleBut ':'
-    char ':'
-    column <- some $ anySingleBut ':'
-    char ':'
+    lookAhead $ oneOf @[] "./"
+    someTill asciiChar (string ".rsl:")
+    line <- someTill digitChar (char ':')
+    column <- someTill digitChar (char ':')
     hspace
-    message <- some $ anySingleBut '\n'
-    newline
+    message <- someTill asciiChar newline
+    other_lines <- many adline
     let lineNo = read line :: Int
         columnNo = read column :: Int
-    return [mkDiagnostic (lineNo - 1) columnNo message]
+        full_msg = unwords $ message : other_lines
+    return [mkDiagnostic (lineNo - 1) columnNo full_msg]
+
+adline :: Parser String
+adline = do
+    notFollowedBy (parseCheckStart <|> parseCheckEnd <|> void parseSummary <|> void parseDiagnostic)
+    someTill asciiChar newline
 
 parseSummary :: Parser (Int, Int)
 parseSummary = do

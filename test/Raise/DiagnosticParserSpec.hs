@@ -4,13 +4,15 @@ module Raise.DiagnosticParserSpec (
     spec
 ) where
 
-import           Data.Either            (isRight)
-import qualified Data.Text              as T
-import           Data.Void              (Void)
+import           Control.Lens            ((^.))
+import           Data.Either             (isRight)
+import qualified Data.Text               as T
+import           Data.Void               (Void)
 import           Language.LSP.Types
+import           Language.LSP.Types.Lens (message, range)
 import           Raise.DiagnosticParser
 import           Test.Hspec
-import           Text.Megaparsec        (ParseErrorBundle, runParser)
+import           Text.Megaparsec         (ParseErrorBundle, runParser)
 
 run :: Parser a -> String -> Either (ParseErrorBundle String Void) a
 run p = runParser p ""
@@ -67,3 +69,25 @@ spec = do
       result `shouldSatisfy` isRight
       _range `shouldBe` Range (Position 0 1) (Position 0 1)
       _message `shouldBe` "Module name SET_DATA does not match file name SET_DATABASE.rsl"
+    it "parses multiline diagnostics" $ do
+      let output = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
+                            , "Checking SET_DATABASE ... "
+                            , "./SET_DATABASE.rsl:7:25: Value name db1 hidden, renamed, or not defined"
+                            , "./SET_DATABASE.rsl:7:40: Type Person (i.e. Text)"
+                            , "and type Int"
+                            , "are not compatible"
+                            , "./SET_DATABASE.rsl:12:26: Value name n3 hidden, renamed, or not defined"
+                            , "Finished SET_DATABASE"
+                            , "rsltc completed: 1 error(s) 0 warning(s)" ]
+          result = parseRSLTC output
+          Right [d1, d2, d3] = result
+      result `shouldSatisfy` isRight
+      
+      d1 ^. range `shouldBe` Range (Position 6 25) (Position 6 25)
+      d1 ^. message `shouldBe` "Value name db1 hidden, renamed, or not defined"
+      
+      d2 ^. range `shouldBe` Range (Position 6 40) (Position 6 40)
+      d2 ^. message `shouldBe` "Type Person (i.e. Text) and type Int are not compatible"
+      
+      d3 ^. range `shouldBe` Range (Position 11 26) (Position 11 26)
+      d3 ^. message `shouldBe` "Value name n3 hidden, renamed, or not defined"
