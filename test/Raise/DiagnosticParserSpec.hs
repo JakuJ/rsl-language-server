@@ -12,7 +12,7 @@ import           Language.LSP.Types
 import           Language.LSP.Types.Lens (message, range)
 import           Raise.DiagnosticParser
 import           Test.Hspec
-import           Text.Megaparsec         (ParseErrorBundle, runParser)
+import           Text.Megaparsec
 
 run :: Parser a -> String -> Either (ParseErrorBundle String Void) a
 run p = runParser p ""
@@ -82,12 +82,12 @@ spec = do
           result = parseRSLTC output
           Right [d1, d2, d3] = result
       result `shouldSatisfy` isRight
-      
+
       d1 ^. range `shouldBe` Range (Position 6 25) (Position 6 25)
       d1 ^. message `shouldBe` "Value name db1 hidden, renamed, or not defined"
-      
+
       d2 ^. range `shouldBe` Range (Position 6 40) (Position 6 40)
       d2 ^. message `shouldBe` "Type Person (i.e. Text) and type Int are not compatible"
-      
+
       d3 ^. range `shouldBe` Range (Position 11 26) (Position 11 26)
       d3 ^. message `shouldBe` "Value name n3 hidden, renamed, or not defined"

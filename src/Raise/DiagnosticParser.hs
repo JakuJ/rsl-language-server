@@ -1,8 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Raise.DiagnosticParser (
-    parseRSLTC
-) where
+module Raise.DiagnosticParser where
 
 import           Control.Monad              (void)
 import qualified Data.Text                  as T
@@ -11,7 +9,6 @@ import           Language.LSP.Types
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (skipLineComment)
-
 
 type Parser = Parsec Void String
 
@@ -24,9 +21,6 @@ mkDiagnostic line column msg = Diagnostic
                                 (T.pack msg)
                                 Nothing -- tags
                                 (Just (List []))
-
-parseIdentifier :: Parser String
-parseIdentifier = some alphaNumChar
 
 parseHeader :: Parser ()
 parseHeader = do

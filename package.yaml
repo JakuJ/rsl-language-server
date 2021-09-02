@@ -25,7 +25,6 @@ dependencies:
 - text
 - lens
 - process
-- filepath
 - megaparsec
 
 default-extensions:
