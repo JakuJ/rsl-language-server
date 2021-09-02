@@ -32,37 +32,37 @@ spec = do
       _message `shouldBe` "Structure of product binding (n, m) does not match structure of type Nat"
   describe "integration tests" $ do
     it "parse output with no errors" $ do
-      let example = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
+      let output = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
                             , "Checking SET_DATABASE ... "
                             , "Finished SET_DATABASE"
                             , "rsltc completed: 0 error(s) 0 warning(s)" ]
-          result = parseRSLTC example
+          result = parseRSLTC output
       result `shouldBe` Right []
     it "parse syntax error" $ do
-      let example = "./SET_DATABASE.rsl:9:29: syntax error\n"
-          result = parseRSLTC example
+      let output = "./SET_DATABASE.rsl:9:29: syntax error\n"
+          result = parseRSLTC output
           Right [Diagnostic {..}] = result
       result `shouldSatisfy` isRight
       _range `shouldBe` Range (Position 8 29) (Position 8 29)
       _message `shouldBe` "syntax error"
     it "parse output with a one-line error" $ do
-      let example = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
+      let output = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
                             , "Checking SET_DATABASE ... "
                             , "./SET_DATABASE.rsl:12:45: Value name n1 hidden, renamed, or not defined"
                             , "Finished SET_DATABASE"
                             , "rsltc completed: 1 error(s) 0 warning(s)" ]
-          result = parseRSLTC example
+          result = parseRSLTC output
           Right [Diagnostic {..}] = result
       result `shouldSatisfy` isRight
       _range `shouldBe` Range (Position 11 45) (Position 11 45)
       _message `shouldBe` "Value name n1 hidden, renamed, or not defined"
     it "parses mixed diagnostics and checking/finished messages" $ do
-      let example = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
+      let output = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
                             , "./SET_DATABASE.rsl:1:1: Module name SET_DATA does not match file name SET_DATABASE.rsl"
                             , "Checking SET_DATABASE ... "
                             , "Finished SET_DATABASE"
                             , "rsltc completed: 1 error(s) 0 warning(s)" ]
-          result = parseRSLTC example
+          result = parseRSLTC output
           Right [Diagnostic {..}] = result
       result `shouldSatisfy` isRight
       _range `shouldBe` Range (Position 0 1) (Position 0 1)

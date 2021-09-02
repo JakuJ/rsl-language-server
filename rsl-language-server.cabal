@@ -34,6 +34,7 @@ library
       src
   default-extensions:
       OverloadedStrings
+  ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
     , filepath
@@ -53,7 +54,7 @@ executable rsl-language-server
       app
   default-extensions:
       OverloadedStrings
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , filepath
@@ -77,7 +78,7 @@ test-suite rsl-language-server-test
       test
   default-extensions:
       OverloadedStrings
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -Wno-incomplete-uni-patterns
   build-depends:
       base >=4.7 && <5
     , filepath

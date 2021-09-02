@@ -4,7 +4,6 @@ import           Control.Monad              (void)
 import qualified Data.Text                  as T
 import           Data.Void                  (Void)
 import           Language.LSP.Types
-import           Language.LSP.Types.Lens    (HasCharacter (character))
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (skipLineComment)
@@ -38,7 +37,7 @@ parseCheckEnd = skipLineComment "Finished" >> void newline
 
 parseDiagnostic :: Parser [Diagnostic]
 parseDiagnostic = do
-    path <- some $ anySingleBut ':'
+    some $ anySingleBut ':'
     char ':'
     line <- some $ anySingleBut ':'
     char ':'
@@ -68,7 +67,7 @@ parseSyntaxCorrect :: Parser [Diagnostic]
 parseSyntaxCorrect = do
     parseHeader
     diags <- concat <$> many parseLine
-    (errs, warns) <- parseSummary
+    parseSummary
     return diags
 
 parseRSLTC :: T.Text -> Either (ParseErrorBundle String Void) [Diagnostic]
