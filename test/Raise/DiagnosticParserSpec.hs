@@ -18,7 +18,7 @@ run :: Parser a -> String -> Either (ParseErrorBundle String Void) a
 run p = runParser p ""
 
 spec :: Spec
-spec = do
+spec = parallel $ do
   describe "unit tests" $ do
     it "parse the header" $ do
       run parseHeader "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014\n" `shouldSatisfy` isRight
