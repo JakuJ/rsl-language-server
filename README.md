@@ -7,7 +7,7 @@ Used by the [VS Code extension](https://github.com/JakuJ/raise-vscode).
 
 Download the newest version from the releases page and put it in your `PATH`.
 
-The server requires the `rsltc` binary to be in your `PATH`. A `.dpk` for 64-bit Linux is included in this repository (for CI).
+The server requires the `rsltc` binary to be in your `PATH`.
 
 ## Manual installation
 

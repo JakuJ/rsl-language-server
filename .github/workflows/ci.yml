@@ -48,3 +48,12 @@ jobs:
     - name: Test
       run: |
         stack test --system-ghc
+
+    - name: Prepare binary
+      run: |
+        zip ~/linux.zip "$(stack path --system-ghc --local-install-root)/bin/rsl-language-server"
+    
+    - uses: actions/upload-artifact@v2
+      with:
+        name: linux.zip
+        path: ~/linux.zip
