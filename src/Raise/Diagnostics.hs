@@ -1,17 +1,15 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Raise.Diagnostics (
-    onSaveHandler,
-    onOpenHandler
+    diagnosticHandler
 ) where
 
 import           Control.Lens             ((^.))
 import           Control.Monad.IO.Class   (liftIO)
+import           Data.Either              (fromRight)
 import           Data.Maybe               (fromJust)
-import           Data.Either               
 import qualified Data.Text                as T
-import           Language.LSP.Diagnostics
+import           Language.LSP.Diagnostics (partitionBySource)
 import           Language.LSP.Server
 import qualified Language.LSP.Types       as J
 import qualified Language.LSP.Types.Lens  as J
@@ -20,28 +18,19 @@ import           System.Process           (readProcessWithExitCode)
 
 runChecker :: FilePath -> IO T.Text
 runChecker path = do
-    (_, stdout, _) <- readProcessWithExitCode "raise.sh" ["rsltc", path] ""
-    return $ T.pack stdout
+    (_, stdout, _) <- readProcessWithExitCode "rsltc" [path] ""
+    pure $ T.pack stdout
 
--- | Analyze the file and send any diagnostics to the client in a
--- "textDocument/publishDiagnostics" notification
 sendDiagnostics :: J.NormalizedUri -> FilePath -> LspM () ()
 sendDiagnostics fileUri filePath = do
-  msgs <- liftIO $ runChecker filePath
-  let diags = fromRight [] (parseRSLTC msgs)
-  case diags of
-    [] -> flushDiagnosticsBySource 100 (Just "rsl-language-server")
-    _ -> publishDiagnostics 100 fileUri Nothing (partitionBySource diags)
+  diagnostics <- fromRight [] . parseRSLTC <$> liftIO (runChecker filePath)
+  if null diagnostics then
+    flushDiagnosticsBySource 100 (Just "rsl-language-server")
+  else
+    publishDiagnostics 100 fileUri Nothing (partitionBySource diagnostics)
 
-onSaveHandler :: J.NotificationMessage 'J.TextDocumentDidSave -> LspM () ()
-onSaveHandler msg = do
-    let doc = msg ^. J.params . J.textDocument . J.uri
-        fileName = J.uriToFilePath doc
-    sendDiagnostics (J.toNormalizedUri doc) $ fromJust fileName
-
--- TODO: Unify type signatures
-onOpenHandler :: J.NotificationMessage 'J.TextDocumentDidOpen -> LspM () ()
-onOpenHandler msg = do
+diagnosticHandler :: (J.HasParams msg params, J.HasTextDocument params doc, J.HasUri doc J.Uri) => msg -> LspM () ()
+diagnosticHandler msg = do
     let doc = msg ^. J.params . J.textDocument . J.uri
         fileName = J.uriToFilePath doc
     sendDiagnostics (J.toNormalizedUri doc) $ fromJust fileName

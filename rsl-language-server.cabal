@@ -34,6 +34,7 @@ library
       src
   default-extensions:
       OverloadedStrings
+      DuplicateRecordFields
   ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
@@ -53,6 +54,7 @@ executable rsl-language-server
       app
   default-extensions:
       OverloadedStrings
+      DuplicateRecordFields
   ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -76,6 +78,7 @@ test-suite rsl-language-server-test
       test
   default-extensions:
       OverloadedStrings
+      DuplicateRecordFields
   ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -Wno-incomplete-uni-patterns
   build-depends:
       base >=4.7 && <5

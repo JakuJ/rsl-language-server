@@ -4,13 +4,13 @@ module Raise.Handlers (
 
 import           Language.LSP.Server
 import           Language.LSP.Types
-import           Raise.CodeLens
-import           Raise.Diagnostics
+import           Raise.CodeLens      (registerLenses)
+import           Raise.Diagnostics   (diagnosticHandler)
 
 
 handlers :: Handlers (LspM ())
 handlers = mconcat
   [ notificationHandler SInitialized $ const registerLenses
-  , notificationHandler STextDocumentDidSave onSaveHandler
-  , notificationHandler STextDocumentDidOpen onOpenHandler
+  , notificationHandler STextDocumentDidSave diagnosticHandler
+  , notificationHandler STextDocumentDidOpen diagnosticHandler
   ]

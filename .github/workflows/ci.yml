@@ -15,6 +15,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Install RSLTC
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386 texlive-binaries
+        sudo dpkg -i CI/rsltc_2.6.1-1_i386.deb
+        rsltc -v
+    
     - uses: haskell/actions/setup@v1
       name: Setup Haskell Stack
       with:
@@ -38,4 +47,4 @@ jobs:
 
     - name: Test
       run: |
-        stack test --system-ghc --test-arguments='--skip=e2e'
+        stack test --system-ghc

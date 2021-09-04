@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Raise.DiagnosticParser where
 
 import           Control.Monad              (void)
@@ -10,22 +8,21 @@ import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (skipLineComment)
 
-type Parser = Parsec Void String
+type Parser = Parsec Void T.Text
 
-mkDiagnostic :: Int -> Int -> String -> Diagnostic
+mkDiagnostic :: Int -> Int -> T.Text -> Diagnostic
 mkDiagnostic line column msg = Diagnostic
-                                (Range (Position line column) (Position line column))
-                                (Just DsError)  -- severity
-                                Nothing  -- code
-                                (Just "rsl-language-server") -- source
-                                (T.pack msg)
-                                Nothing -- tags
-                                (Just (List []))
+    { _range = Range (Position line column) (Position line column)
+    , _severity = Just DsError
+    , _code = Nothing
+    , _source = Just "rsl-language-server"
+    , _message = msg
+    , _tags = Nothing
+    , _relatedInformation = Just $ List []
+    }
 
 parseHeader :: Parser ()
-parseHeader = do
-    skipLineComment "rsltc version"
-    void newline
+parseHeader = skipLineComment "rsltc version" >> void newline
 
 parseCheckStart :: Parser ()
 parseCheckStart = skipLineComment "Checking" >> void newline
@@ -33,24 +30,25 @@ parseCheckStart = skipLineComment "Checking" >> void newline
 parseCheckEnd :: Parser ()
 parseCheckEnd = skipLineComment "Finished" >> void newline
 
-parseDiagnostic :: Parser [Diagnostic]
-parseDiagnostic = do
-    lookAhead $ oneOf @[] "./"
-    someTill asciiChar (string ".rsl:")
-    line <- someTill digitChar (char ':')
-    column <- someTill digitChar (char ':')
-    hspace
-    message <- someTill asciiChar newline
-    other_lines <- many adline
-    let lineNo = read line :: Int
-        columnNo = read column :: Int
-        full_msg = unwords $ message : other_lines
-    return [mkDiagnostic (lineNo - 1) columnNo full_msg]
+parseDiagnosticLine :: Parser T.Text
+parseDiagnosticLine = T.pack <$> someTill asciiChar newline
 
-adline :: Parser String
-adline = do
+parseDiagnostic :: Parser Diagnostic
+parseDiagnostic = do
+    lookAhead $ oneOf ("./" :: String) -- filepaths start with . (relative) or / (absolute)
+    someTill asciiChar (string ".rsl:")
+    line <- read <$> someTill digitChar (char ':')
+    column <- read <$> someTill digitChar (char ':')
+    hspace
+    message <- parseDiagnosticLine
+    extraLines <- many extraDignosticLine
+    let fullMessage = T.unwords $ message : extraLines
+    pure $ mkDiagnostic (line - 1) column fullMessage
+
+extraDignosticLine :: Parser T.Text
+extraDignosticLine = do
     notFollowedBy (parseCheckStart <|> parseCheckEnd <|> void parseSummary <|> void parseDiagnostic)
-    someTill asciiChar newline
+    parseDiagnosticLine
 
 parseSummary :: Parser (Int, Int)
 parseSummary = do
@@ -60,17 +58,16 @@ parseSummary = do
     warns <- read <$> some numberChar
     string " warning(s)"
     optional newline
-    return (errs, warns)
+    pure (errs, warns)
 
 parseLine :: Parser [Diagnostic]
-parseLine = try parseDiagnostic <|> ((parseCheckStart <|> parseCheckEnd) >> pure [])
+parseLine = ((: []) <$> try parseDiagnostic) <|> ((parseCheckStart <|> parseCheckEnd) >> pure [])
 
-parseSyntaxCorrect :: Parser [Diagnostic]
-parseSyntaxCorrect = do
-    parseHeader
-    diags <- concat <$> many parseLine
-    parseSummary
-    return diags
+parseCorrectSyntax :: Parser [Diagnostic]
+parseCorrectSyntax = between parseHeader parseSummary $ concat <$> many parseLine
 
-parseRSLTC :: T.Text -> Either (ParseErrorBundle String Void) [Diagnostic]
-parseRSLTC = runParser (parseSyntaxCorrect <|> parseDiagnostic) "" . T.unpack
+parseSyntaxError :: Parser [Diagnostic]
+parseSyntaxError = (: []) <$> parseDiagnostic
+
+parseRSLTC :: T.Text -> Either (ParseErrorBundle T.Text Void) [Diagnostic]
+parseRSLTC = runParser (parseCorrectSyntax <|> parseSyntaxError) ""

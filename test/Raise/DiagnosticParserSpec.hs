@@ -7,14 +7,13 @@ module Raise.DiagnosticParserSpec (
 import           Control.Lens            ((^.))
 import           Data.Either             (isRight)
 import qualified Data.Text               as T
-import           Data.Void               (Void)
 import           Language.LSP.Types
 import           Language.LSP.Types.Lens (message, range)
 import           Raise.DiagnosticParser
 import           Test.Hspec
 import           Text.Megaparsec
 
-run :: Parser a -> String -> Either (ParseErrorBundle String Void) a
+run :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
 run p = runParser p ""
 
 spec :: Spec
@@ -29,7 +28,7 @@ spec = parallel $ do
     it "parse error summary" $ do
       run parseSummary "rsltc completed: 1 error(s) 0 warning(s)" `shouldBe` Right (1, 0)
     it "parse diagnostics" $ do
-      let Right [Diagnostic {..}] = run parseDiagnostic "./SET_DATABASE.rsl:12:7: Structure of product binding (n, m) does not match structure of type Nat\n"
+      let Right Diagnostic {..} = run parseDiagnostic "./SET_DATABASE.rsl:12:7: Structure of product binding (n, m) does not match structure of type Nat\n"
       _range `shouldBe` Range (Position 11 7) (Position 11 7)
       _message `shouldBe` "Structure of product binding (n, m) does not match structure of type Nat"
   describe "integration tests" $ do

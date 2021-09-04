@@ -4,13 +4,12 @@ scheme two_errors =
           Database = Person-set,  Person = Text
       value
         register : Person >< Database -> Database
-        register(p,db) is db1 union {p}
-      test_case
-        [t1] register("Henrik", register("Anne", {})) 
+        register(p, db) is db union {p}
       value
         factorial : Nat -> Nat
         factorial(n) is if n2 <= 1 then 1 else n * factorial(n - 1) end
       test_case
+        [t1] register("Henrik", register("Anne", {}, 2)),
         [t2] factorial(5)
     end
   

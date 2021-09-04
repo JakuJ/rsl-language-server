@@ -1,22 +1,20 @@
-{-# OPTIONS_GHC -Wno-missing-fields #-}
-
 module Main (
   main
 ) where
 
-import           Control.Monad.IO.Class
+import           Control.Monad.IO.Class (liftIO)
 import           Language.LSP.Server
 import           Language.LSP.Types
-import           Raise.Handlers
+import           Raise.Handlers         (handlers)
 
--- TODO: Record fields issue
 syncOptions :: TextDocumentSyncOptions
 syncOptions = TextDocumentSyncOptions
-  (Just True)
-  (Just TdSyncIncremental)
-  (Just False)
-  (Just False)
-  (Just $ InR $ SaveOptions $ Just False)
+  { _openClose = Just True
+  , _change = Just TdSyncIncremental
+  , _willSave = Just False
+  , _willSaveWaitUntil = Just False
+  , _save = Just $ InR $ SaveOptions $ Just False
+  }
 
 lspOptions :: Options
 lspOptions = defaultOptions
@@ -27,8 +25,9 @@ lspOptions = defaultOptions
 main :: IO Int
 main = runServer $ ServerDefinition
   { onConfigurationChange = const $ pure $ Right ()
-  , doInitialize = \env _req -> pure $ Right env
+  , doInitialize = \env _ -> pure $ Right env
   , staticHandlers = handlers
   , interpretHandler = \env -> Iso (runLspT env) liftIO
   , options = lspOptions
+  , defaultConfig = undefined
   }
