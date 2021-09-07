@@ -1,0 +1,9 @@
+scheme compiler_errors =
+    class
+      type
+        Resource,
+        Pool = Resource-set
+      value
+        obtain : Pool -> Pool >< Resource
+        obtain(p) as (p1, r1) post r1 isin p /\ p1 = p \ {r1}
+     end

@@ -1,0 +1,15 @@
+scheme no_errors =
+    class
+      type
+          Database = Person-set,  Person = Text
+      value
+        register : Person >< Database -> Database
+        register(p, db) is db union {p}
+      value
+        factorial : Nat -> Nat
+        factorial(n) is if n <= 1 then 1 else n * factorial(n - 1) end
+      test_case
+        [t1] register("Henrik", register("Anne", {})),
+        [t2] factorial(5)
+    end
+  

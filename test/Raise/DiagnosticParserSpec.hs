@@ -86,7 +86,43 @@ spec = parallel $ do
       d1 ^. message `shouldBe` "Value name db1 hidden, renamed, or not defined"
 
       d2 ^. range `shouldBe` Range (Position 6 40) (Position 6 40)
-      d2 ^. message `shouldBe` "Type Person (i.e. Text) and type Int are not compatible"
+      d2 ^. message `shouldBe` "Type Person (i.e. Text)\nand type Int\nare not compatible"
 
       d3 ^. range `shouldBe` Range (Position 11 26) (Position 11 26)
       d3 ^. message `shouldBe` "Value name n3 hidden, renamed, or not defined"
+    it "parses rsltc -m output" $ do
+      let output = T.unlines [ "rsltc version 2.6 of Fri Sep 19 19:41:13 BST 2014"
+                            , "Checking lab2 ... "
+                            , "Finished lab2"
+                            , "./lab2.rsl:18:9: Feature not supported: underspecified value"
+                            , "./lab2.rsl:17:9: Feature not supported: underspecified value"
+                            , "SML output is in files lab2.sml and lab2_.sml"
+                            , "rsltc completed: 2 error(s) 0 warning(s)" ]
+          result = parseRSLTC output
+          Right [d1, d2] = result
+
+      d1 ^. range `shouldBe` Range (Position 17 9) (Position 17 9)
+      d1 ^. message `shouldBe` "Feature not supported: underspecified value"
+
+      d2 ^. range `shouldBe` Range (Position 16 9) (Position 16 9)
+      d2 ^. message `shouldBe` "Feature not supported: underspecified value"
+    it "parses complex compiler output" $ do
+      let output = T.unlines [ "rsltc version 2.5 of Thu Sep  3 12:59:22 CEST 2020"
+                            , "Checking RESOURCE_MANAGER ... "
+                            , "Finished RESOURCE_MANAGER"
+                            , "/Users/someuser/Documents/SomeFolder/Folder With Spaces/RESOURCE_MANAGER.rsl:4:7: Feature not supported: abstract type"
+                            , "Type Resource-set seems to be involved in mutual recursion with another record or variant."
+                            , "Feature not supported: Mutual recursion between records or variants"
+                            , "/Users/someuser/rsl-language-server/test/data/RESOURCE_MANAGER.rsl:0:0: Internal error: no type alias for type Resource"
+                            , "./RESOURCE_MANAGER.rsl:0:0: Internal error: no type alias for type Pool (i.e. Resource-set)"
+                            , "./RESOURCE_MANAGER.rsl:8:7: Feature not supported: implicit function"
+                            , "SML output is in files RESOURCE_MANAGER.sml and RESOURCE_MANAGER_.sml"
+                            , "rsltc completed: 4 error(s) 0 warning(s)"
+                            ]
+          result = parseRSLTC output
+          Right [d1, d2, d3, d4] = result
+
+      d1 ^. message `shouldBe` "Feature not supported: abstract type\nType Resource-set seems to be involved in mutual recursion with another record or variant.\nFeature not supported: Mutual recursion between records or variants"
+      d2 ^. message `shouldBe` "Internal error: no type alias for type Resource"
+      d3 ^. message `shouldBe` "Internal error: no type alias for type Pool (i.e. Resource-set)"
+      d4 ^. message `shouldBe` "Feature not supported: implicit function"

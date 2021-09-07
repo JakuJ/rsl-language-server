@@ -2,6 +2,7 @@ module Main (
   main
 ) where
 
+import           ArgParse               (parseArgs)
 import           Control.Monad.IO.Class (liftIO)
 import           Language.LSP.Server
 import           Language.LSP.Types
@@ -22,12 +23,17 @@ lspOptions = defaultOptions
   , executeCommandCommands = Just []
   }
 
+serverDef :: Bool -> ServerDefinition ()
+serverDef compile = ServerDefinition
+            { onConfigurationChange = const $ pure $ Right ()
+            , doInitialize = \env _ -> pure $ Right env
+            , staticHandlers = handlers compile
+            , interpretHandler = \env -> Iso (runLspT env) liftIO
+            , options = lspOptions
+            , defaultConfig = undefined
+            }
+
 main :: IO Int
-main = runServer $ ServerDefinition
-  { onConfigurationChange = const $ pure $ Right ()
-  , doInitialize = \env _ -> pure $ Right env
-  , staticHandlers = handlers
-  , interpretHandler = \env -> Iso (runLspT env) liftIO
-  , options = lspOptions
-  , defaultConfig = undefined
-  }
+main = do
+  compile <- parseArgs
+  runServer $ serverDef compile
