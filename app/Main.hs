@@ -1,12 +1,16 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Main (
   main
 ) where
 
-import           ArgParse               (parseArgs)
-import           Control.Monad.IO.Class (liftIO)
+import           ArgParse
+import           Control.Monad.IO.Class    (liftIO)
+import           Data.Version              (showVersion)
 import           Language.LSP.Server
 import           Language.LSP.Types
-import           Raise.Handlers         (handlers)
+import qualified Paths_rsl_language_server as Paths
+import           Raise.Handlers            (handlers)
 
 syncOptions :: TextDocumentSyncOptions
 syncOptions = TextDocumentSyncOptions
@@ -35,5 +39,8 @@ serverDef compile = ServerDefinition
 
 main :: IO Int
 main = do
-  compile <- parseArgs
-  runServer $ serverDef compile
+  Args{..} <- parseArgs
+  if version then
+    putStrLn ("rsl-language-server version " <> showVersion Paths.version) >> return 0
+  else
+    runServer $ serverDef compile
