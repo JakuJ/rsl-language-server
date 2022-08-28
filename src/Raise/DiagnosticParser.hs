@@ -12,9 +12,9 @@ import           Text.Megaparsec.Char.Lexer (skipLineComment)
 
 type Parser = Parsec Void T.Text
 
-mkDiagnostic :: Int -> Int -> T.Text -> Diagnostic
-mkDiagnostic line column msg = Diagnostic
-  { _range = Range (Position line column) (Position line column)
+mkDiagnostic :: UInt -> UInt -> T.Text -> Diagnostic
+mkDiagnostic row column msg = Diagnostic
+  { _range = Range (Position row column) (Position row column)
   , _severity = Just DsError
   , _code = Nothing
   , _source = Just "rsl-language-server"
@@ -57,14 +57,14 @@ parseDiagnostic :: Parser Diagnostic
 parseDiagnostic = do
   lookAhead $ oneOf ("./" :: String) -- filepaths start with . (relative) or / (absolute)
   someTill asciiChar (string ".rsl:")
-  line <- max 0 . subtract 1 . read <$> someTill digitChar (char ':')
+  row <- max 0 . subtract 1 . read <$> someTill digitChar (char ':')
   column <- read <$> someTill digitChar (char ':')
   hspace
   message <- parseDiagnosticLine
   extraLines <- many extraDignosticLine
   let fullMessage = T.unlines $ message : extraLines
       fullMessage' = fromMaybe fullMessage $ T.stripSuffix "\n" fullMessage
-  pure $ mkDiagnostic line column fullMessage'
+  pure $ mkDiagnostic row column fullMessage'
 
 extraDignosticLine :: Parser T.Text
 extraDignosticLine = do
