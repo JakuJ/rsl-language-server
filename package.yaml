@@ -18,6 +18,8 @@ dependencies:
 - text
 - lens
 - process
+- directory
+- filepath
 - megaparsec
 - optparse-applicative
 

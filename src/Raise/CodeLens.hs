@@ -21,6 +21,7 @@ cmdList :: [(T.Text, T.Text)]
 cmdList = [ ("Typecheck", "raise.typeCheck")
           , ("Compile to SML", "raise.compileToSML")
           , ("Run SML", "raise.runSML")
+          , ("Save Results", "raise.saveResults")
           ]
 
 registerLenses :: LspM () ()
