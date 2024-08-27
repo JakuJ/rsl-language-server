@@ -1,16 +1,7 @@
-resolver: nightly-2022-06-06
+resolver: lts-22.33
 
-compiler: ghc-9.2.2
+compiler: ghc-9.6.6
 compiler-check: match-exact
 
 packages:
 - .
-
-extra-deps:
-- lsp-1.4.0.0@sha256:d992cb88d6212f113baf372404c141a6bea14c436baa64ea6e4f01b6188c575b,5088
-- lsp-types-1.4.0.1@sha256:b902952df7becc1827947ee3ff1cd8c746aa8f9f80db330db20e2fdf1b6089e8,4504
-- lsp-test-0.14.0.2@sha256:d62d2af45508f04c5fcad23e469c45b37ca19760cee15b025a0eb499cbd28050,4663
-- rope-utf16-splay-0.4.0.0@sha256:2237ca21b950f5a45971f09ea2d38532a8e06949c82629095351e4bff5207aed,2034
-- text-2.0@sha256:86e64bc76fefb8f0f6529d28ddf24b2a29d43591a8b9b7c7094f481a0db2fb7d,7788
-- Cabal-3.6.3.0@sha256:ff97c442b0c679c1c9876acd15f73ac4f602b973c45bde42b43ec28265ee48f4,12459
-- parsec-3.1.15.0@sha256:a162d4cc8884014ba35192545cad293af0529fe11497aad8834bbaaa3dfffc26,4429

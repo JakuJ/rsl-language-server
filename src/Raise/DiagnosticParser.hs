@@ -1,26 +1,28 @@
 module Raise.DiagnosticParser where
 
-import           Control.Monad              (void)
-import           Data.Foldable              (asum)
-import           Data.Maybe                 (fromMaybe)
-import qualified Data.Text                  as T
-import           Data.Void                  (Void)
-import           Language.LSP.Types
+import           Control.Monad               (void)
+import           Data.Foldable               (asum)
+import           Data.Maybe                  (fromMaybe)
+import qualified Data.Text                   as T
+import           Data.Void                   (Void)
+import           Language.LSP.Protocol.Types
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
-import           Text.Megaparsec.Char.Lexer (skipLineComment)
+import           Text.Megaparsec.Char.Lexer  (skipLineComment)
 
 type Parser = Parsec Void T.Text
 
 mkDiagnostic :: UInt -> UInt -> T.Text -> Diagnostic
 mkDiagnostic row column msg = Diagnostic
   { _range = Range (Position row column) (Position row column)
-  , _severity = Just DsError
+  , _severity = Just DiagnosticSeverity_Error
   , _code = Nothing
+  , _codeDescription = Nothing
   , _source = Just "rsl-language-server"
   , _message = msg
   , _tags = Nothing
-  , _relatedInformation = Just $ List []
+  , _relatedInformation = Just []
+  , _data_ = Nothing
   }
 
 -- Discarded output
