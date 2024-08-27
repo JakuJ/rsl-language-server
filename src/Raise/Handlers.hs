@@ -13,4 +13,6 @@ handlers compile = mconcat
   [ notificationHandler SMethod_Initialized $ const registerLenses
   , notificationHandler SMethod_TextDocumentDidSave $ diagnosticHandler compile
   , notificationHandler SMethod_TextDocumentDidOpen $ diagnosticHandler compile
+  , notificationHandler SMethod_TextDocumentDidChange $ const $ pure ()
+  , notificationHandler SMethod_TextDocumentDidClose $ const $ pure ()
   ]
