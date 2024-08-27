@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -39,6 +39,8 @@ library
   ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , directory
+    , filepath
     , lens
     , lsp
     , lsp-types
@@ -60,6 +62,8 @@ executable rsl-language-server
   ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , directory
+    , filepath
     , lens
     , lsp
     , lsp-types
@@ -85,6 +89,8 @@ test-suite rsl-language-server-test
   ghc-options: -flate-dmd-anal -flate-specialise -Wall -Wcompat -Wno-unused-do-bind -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -Wno-incomplete-uni-patterns
   build-depends:
       base >=4.7 && <5
+    , directory
+    , filepath
     , hspec
     , hspec-discover
     , lens

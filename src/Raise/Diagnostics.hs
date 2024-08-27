@@ -14,18 +14,23 @@ import qualified Language.LSP.Protocol.Lens  as J
 import qualified Language.LSP.Protocol.Types as J
 import           Language.LSP.Server
 import           Raise.DiagnosticParser      (parseRSLTC)
+import           System.Directory            (withCurrentDirectory)
+import           System.FilePath             (takeDirectory, takeFileName)
 import           System.Process              (readProcessWithExitCode)
 
-runTool :: String -> [String] -> IO T.Text
-runTool tool args = do
-  (_, stdout, _) <- readProcessWithExitCode tool args ""
-  pure $ T.pack stdout
+runTool :: String -> [String] -> FilePath -> IO T.Text
+runTool tool args path = do
+  let dir = takeDirectory path
+      file = takeFileName path
+  withCurrentDirectory dir $ do
+    (_, stdout, _) <- readProcessWithExitCode tool (args ++ [file]) ""
+    pure $ T.pack stdout
 
 runChecker :: FilePath -> IO T.Text
-runChecker path = runTool "rsltc" [path]
+runChecker path = runTool "rsltc" [] path
 
 runCompiler :: FilePath -> IO T.Text
-runCompiler path = runTool "rsltc" ["-m", path]
+runCompiler path = runTool "rsltc" ["-m"] path
 
 sendDiagnostics :: Bool -> J.NormalizedUri -> FilePath -> LspM () ()
 sendDiagnostics compile fileUri filePath = do
