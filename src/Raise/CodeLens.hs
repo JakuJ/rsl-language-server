@@ -27,5 +27,5 @@ cmdList = [ ("Typecheck", "raise.typeCheck")
 registerLenses :: LspM () ()
 registerLenses = do
   let rsp = map (uncurry registerCommand) cmdList
-  _ <- registerCapability SMethod_TextDocumentCodeLens regOpts $ \_ responder -> responder (Right (InL rsp))
+  _ <- registerCapability mempty SMethod_TextDocumentCodeLens regOpts $ \_ responder -> responder (Right (InL rsp))
   pure ()
