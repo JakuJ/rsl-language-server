@@ -16,6 +16,7 @@ import           Language.LSP.Server
 import           Raise.DiagnosticParser      (parseRSLTC)
 import           System.Directory            (withCurrentDirectory)
 import           System.FilePath             (takeDirectory, takeFileName)
+import           System.Info                 (os)
 import           System.Process              (readProcessWithExitCode)
 
 runTool :: String -> [String] -> FilePath -> IO T.Text
@@ -26,11 +27,14 @@ runTool tool args path = do
     (_, stdout, _) <- readProcessWithExitCode tool (args ++ [file]) ""
     pure $ T.pack stdout
 
+rsltcPath :: FilePath
+rsltcPath = if os == "mingw32" then "rsltc.exe" else "rsltc"
+
 runChecker :: FilePath -> IO T.Text
-runChecker path = runTool "rsltc" [] path
+runChecker path = runTool rsltcPath [] path
 
 runCompiler :: FilePath -> IO T.Text
-runCompiler path = runTool "rsltc" ["-m"] path
+runCompiler path = runTool rsltcPath ["-m"] path
 
 sendDiagnostics :: Bool -> J.NormalizedUri -> FilePath -> LspM () ()
 sendDiagnostics compile fileUri filePath = do
