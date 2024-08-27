@@ -2,7 +2,6 @@ module Raise.CodeLens (
     registerLenses
 ) where
 
-import           Control.Monad.IO.Class
 import qualified Data.Text                     as T
 import           Language.LSP.Protocol.Message
 import           Language.LSP.Protocol.Types

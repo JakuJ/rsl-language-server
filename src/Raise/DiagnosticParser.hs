@@ -57,6 +57,8 @@ parseDiagnosticLine = T.pack <$> someTill asciiChar newline
 
 parseDiagnostic :: Parser Diagnostic
 parseDiagnostic = do
+  lookAhead $ (oneOf ("./" :: String) -- filepaths start with . (relative) or / (absolute)
+    <|> letterChar <* string ":\\")   -- absolute Windows filepaths with disk letter
   someTill asciiChar (string ".rsl:")
   row <- max 0 . subtract 1 . read <$> someTill digitChar (char ':')
   column <- read <$> someTill digitChar (char ':')

@@ -21,7 +21,7 @@ import           System.Process              (readProcessWithExitCode)
 runTool :: String -> [String] -> FilePath -> IO T.Text
 runTool tool args path = do
   let dir = takeDirectory path
-      file = takeFileName path
+      file = "./" ++ takeFileName path
   withCurrentDirectory dir $ do
     (_, stdout, _) <- readProcessWithExitCode tool (args ++ [file]) ""
     pure $ T.pack stdout

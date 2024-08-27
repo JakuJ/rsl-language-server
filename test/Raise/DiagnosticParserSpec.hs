@@ -4,11 +4,11 @@ module Raise.DiagnosticParserSpec (
     spec
 ) where
 
-import           Control.Lens            ((^.))
-import           Data.Either             (isRight)
-import qualified Data.Text               as T
-import           Language.LSP.Types
-import           Language.LSP.Types.Lens (message, range)
+import           Control.Lens                ((^.))
+import           Data.Either                 (isRight)
+import qualified Data.Text                   as T
+import           Language.LSP.Protocol.Lens  (message, range)
+import           Language.LSP.Protocol.Types
 import           Raise.DiagnosticParser
 import           Test.Hspec
 import           Text.Megaparsec
