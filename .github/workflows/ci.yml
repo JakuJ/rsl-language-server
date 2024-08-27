@@ -24,7 +24,7 @@ jobs:
     - uses: haskell/actions/setup@v1
       name: Setup Haskell Stack
       with:
-        ghc-version: 9.2.2
+        ghc-version: 9.6.6
         enable-stack: true
         stack-version: 'latest'
 
@@ -32,7 +32,7 @@ jobs:
       name: Cache ~/.stack
       with:
         path: ~/.stack
-        key: ${{ runner.os }}-9.2.2-stack
+        key: ${{ runner.os }}-9.6.6-stack
 
     - name: Install dependencies
       run: |

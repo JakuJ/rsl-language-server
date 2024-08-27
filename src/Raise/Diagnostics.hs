@@ -4,17 +4,17 @@ module Raise.Diagnostics (
   diagnosticHandler
 ) where
 
-import           Control.Lens             ((^.))
-import           Control.Monad.IO.Class   (liftIO)
-import           Data.Either              (fromRight)
-import           Data.Maybe               (fromJust)
-import qualified Data.Text                as T
-import           Language.LSP.Diagnostics (partitionBySource)
+import           Control.Lens                ((^.))
+import           Control.Monad.IO.Class      (liftIO)
+import           Data.Either                 (fromRight)
+import           Data.Maybe                  (fromJust)
+import qualified Data.Text                   as T
+import           Language.LSP.Diagnostics    (partitionBySource)
+import qualified Language.LSP.Protocol.Lens  as J
+import qualified Language.LSP.Protocol.Types as J
 import           Language.LSP.Server
-import qualified Language.LSP.Types       as J
-import qualified Language.LSP.Types.Lens  as J
-import           Raise.DiagnosticParser   (parseRSLTC)
-import           System.Process           (readProcessWithExitCode)
+import           Raise.DiagnosticParser      (parseRSLTC)
+import           System.Process              (readProcessWithExitCode)
 
 runTool :: String -> [String] -> IO T.Text
 runTool tool args = do
@@ -30,8 +30,8 @@ runCompiler path = runTool "rsltc" ["-m", path]
 sendDiagnostics :: Bool -> J.NormalizedUri -> FilePath -> LspM () ()
 sendDiagnostics compile fileUri filePath = do
   tcDiags <- fromRight [] . parseRSLTC <$> liftIO (runChecker filePath)
-  compilerDiags <- if not compile then pure [] else 
-    fmap (\x -> x {J._severity = Just J.DsWarning} ) . fromRight [] . parseRSLTC <$> liftIO (runCompiler filePath)
+  compilerDiags <- if not compile then pure [] else
+    fmap (\x -> x {J._severity = Just J.DiagnosticSeverity_Warning} ) . fromRight [] . parseRSLTC <$> liftIO (runCompiler filePath)
   let diags = tcDiags ++ compilerDiags
   if null diags then
     flushDiagnosticsBySource 100 (Just "rsl-language-server")

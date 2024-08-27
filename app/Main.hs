@@ -5,17 +5,17 @@ module Main (
 ) where
 
 import           ArgParse
-import           Control.Monad.IO.Class    (liftIO)
-import           Data.Version              (showVersion)
+import           Control.Monad.IO.Class      (liftIO)
+import           Data.Version                (showVersion)
+import           Language.LSP.Protocol.Types
 import           Language.LSP.Server
-import           Language.LSP.Types
-import qualified Paths_rsl_language_server as Paths
-import           Raise.Handlers            (handlers)
+import qualified Paths_rsl_language_server   as Paths
+import           Raise.Handlers              (handlers)
 
 syncOptions :: TextDocumentSyncOptions
 syncOptions = TextDocumentSyncOptions
   { _openClose = Just True
-  , _change = Just TdSyncIncremental
+  , _change = Just TextDocumentSyncKind_Incremental
   , _willSave = Just False
   , _willSaveWaitUntil = Just False
   , _save = Just $ InR $ SaveOptions $ Just False
@@ -23,18 +23,19 @@ syncOptions = TextDocumentSyncOptions
 
 lspOptions :: Options
 lspOptions = defaultOptions
-  { textDocumentSync = Just syncOptions
-  , executeCommandCommands = Just []
+  { optTextDocumentSync = Just syncOptions
   }
 
 serverDef :: Bool -> ServerDefinition ()
 serverDef compile = ServerDefinition
-            { onConfigurationChange = const $ pure $ Right ()
+            { parseConfig = const $ const $ Right ()
+            , onConfigChange = const $ pure ()
+            , defaultConfig = ()
+            , configSection = "rsl-language-server"
             , doInitialize = \env _ -> pure $ Right env
-            , staticHandlers = handlers compile
+            , staticHandlers = const $ handlers compile
             , interpretHandler = \env -> Iso (runLspT env) liftIO
             , options = lspOptions
-            , defaultConfig = undefined
             }
 
 main :: IO Int
