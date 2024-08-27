@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 module Raise.CodeLens (
     registerLenses
 ) where
@@ -29,9 +27,5 @@ cmdList = [ ("Typecheck", "raise.typeCheck")
 registerLenses :: LspM () ()
 registerLenses = do
   let rsp = map (uncurry registerCommand) cmdList
-  #ifdef mingw32_HOST_OS
-  _ <- registerCapability mempty SMethod_TextDocumentCodeLens regOpts $ \_ responder -> responder (Right (InL rsp))
-  #else
   _ <- registerCapability SMethod_TextDocumentCodeLens regOpts $ \_ responder -> responder (Right (InL rsp))
-  #endif
   pure ()
