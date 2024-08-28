@@ -15,4 +15,5 @@ handlers compile = mconcat
   , notificationHandler SMethod_TextDocumentDidOpen $ diagnosticHandler compile
   , notificationHandler SMethod_TextDocumentDidChange $ const $ pure ()
   , notificationHandler SMethod_TextDocumentDidClose $ const $ pure ()
+  , notificationHandler SMethod_WorkspaceDidChangeConfiguration $ const $ pure ()
   ]

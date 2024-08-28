@@ -2,3 +2,4 @@
 .vscode/
 *~
 *.sml
+dist-newstyle/
