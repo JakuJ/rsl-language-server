@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           rsl-language-server
-version:        0.1.2.0
+version:        0.1.2.1
 description:    Please see the README on GitHub at <https://github.com/JakuJ/rsl-language-server#readme>
 homepage:       https://github.com/JakuJ/rsl-language-server#readme
 bug-reports:    https://github.com/JakuJ/rsl-language-server/issues
